@@ -2,6 +2,7 @@
 
 namespace Src\Auth;
 
+use Model\User;
 use Src\Session;
 
 class Auth
@@ -36,7 +37,7 @@ class Auth
     }
 
     //Возврат текущего аутентифицированного пользователя
-    public static function user()
+    public static function user(): User|null
     {
         $id = Session::get('id') ?? 0;
         return self::$user->findIdentity($id);

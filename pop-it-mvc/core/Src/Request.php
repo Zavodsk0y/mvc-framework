@@ -24,12 +24,12 @@ class Request
         return $this->body + $this->files();
     }
 
-    public function set($field, $value): void
+    public function set(string $field, $value): void
     {
         $this->body[$field] = $value;
     }
 
-    public function get($field)
+    public function get(string $field): string
     {
         return $this->body[$field];
     }
