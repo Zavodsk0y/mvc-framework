@@ -19,7 +19,8 @@ return [
 
     'validators' => [
         'required' => \Src\Validator\RequireValidator::class,
-        'unique' => \Src\Validator\UniqueValidator::class
+        'unique' => \Src\Validator\UniqueValidator::class,
+        'length' => \Src\Validator\PasswordLengthValidator::class,
     ],
 
     'providers' => [

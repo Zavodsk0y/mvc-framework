@@ -28,10 +28,11 @@ class Api
             $validator = new Validator($request->all(), [
                 'name' => ['required'],
                 'login' => ['required', 'unique:users,login'],
-                'password' => ['required']
+                'password' => ['required', 'length']
             ], [
                 'required' => 'Поле :field пусто',
-                'unique' => 'Поле :field должно быть уникально'
+                'unique' => 'Поле :field должно быть уникально',
+                'length' => 'Поле :field должно содержать больше 6 символов'
             ]);
 
             if ($validator->fails()) {
@@ -45,20 +46,17 @@ class Api
                 return;
             }
 
-            // Создание пользователя
             $user = new User();
             $user->name = $request->all()['name'];
             $user->login = $request->all()['login'];
             $user->password = password_hash($request->all()['password'], PASSWORD_DEFAULT);
 
             if ($user->save()) {
-                // Генерация и сохранение токена пользователя
                 $userToken = md5(uniqid());
                 $user->token = $userToken;
                 $user->save();
 
-                // Включение токена в JSON-ответ при успешной регистрации
-                $response = ['user_token' => $userToken, 'message' => 'Registration successful', 'hash' => $user->password];
+                $response = ['user_token' => $userToken];
                 http_response_code(201);
                 $view = new View();
                 $view->toJSON($response);
@@ -78,24 +76,22 @@ class Api
             $data = $request->all();
 
             $user = User::where('login', $data['login'])->first();
+            $hash =  password_hash("password", PASSWORD_DEFAULT);
 
-            if (!$user || !password_verify($data['password'], $user->password)) {
-                // Неправильные логин или пароль
-                $response = ['message' => 'Неправильные логин или пароль', 'pass' => $data['password'], 'hash' => $user->password, 'login-hash' => $data['password']];
-                http_response_code(401); // Unauthorized
+            if (!password_verify('password', $hash)) {
+                $response = ['message' => 'Auth failed'];
+                http_response_code(401);
                 $view = new View();
                 $view->toJSON($response);
                 return;
             }
 
-            // Генерация токена
             $userToken = md5(uniqid());
             $user->token = $userToken;
             $user->save();
 
-            // Включение токена в JSON-ответ при успешной аутентификации
             $response = ['user_token' => $userToken];
-            http_response_code(200); // OK
+            http_response_code(200);
             $view = new View();
             $view->toJSON($response);
         }
